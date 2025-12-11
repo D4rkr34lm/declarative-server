@@ -10,4 +10,7 @@ export default config(baseConfig, {
       ...globals.node,
     },
   },
+  rules: {
+    "@typescript-eslint/no-empty-object-type": "off",
+  },
 });
