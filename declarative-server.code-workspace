@@ -1,0 +1,37 @@
+{
+  "folders": [
+    {
+      "path": "."
+    },
+  ],
+  "settings": {
+    "editor.tokenColorCustomizations": {
+      "[*Dark*]": {
+        "textMateRules": [
+          {
+            "scope": "keyword.control",
+            "settings": {
+              "foreground": "#C586C0"
+            }
+          }
+        ]
+      }
+    },
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": "explicit",
+      "source.organizeImports": "explicit"
+    },
+    "eslint.validate": [
+      "javascript",
+      "typescript",
+      "vue",
+      "vue-html"
+    ],
+    "cSpell.words": [
+      "neverthrow",
+      "VITE"
+    ],
+    "typescript.tsdk": "node_modules/typescript/lib",
+  }
+}
