@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { ZodType } from "zod";
 import { HttpStatusCodes } from "../constants/HttpStatusCodes";
 
-export function createBodyValidatorMiddleware<Schema extends ZodType>(
+export function buildBodyValidatorMiddleware<Schema extends ZodType>(
   schema: Schema,
 ) {
   return (request: Request, response: Response, next: NextFunction) => {
@@ -18,7 +18,7 @@ export function createBodyValidatorMiddleware<Schema extends ZodType>(
   };
 }
 
-export function createQueryValidatorMiddleware<Schema extends ZodType>(
+export function buildQueryValidatorMiddleware<Schema extends ZodType>(
   schema: Schema,
 ) {
   return (request: Request, response: Response, next: NextFunction) => {

@@ -1,11 +1,14 @@
 import cookieParser from "cookie-parser";
 import express, { Application } from "express";
 import { ZodType } from "zod";
-import { ApiEndpointHandler } from "./handlers/apiHandler";
+import {
+  ApiEndpointHandler,
+  buildApiEndpointHandler,
+} from "./handlers/apiHandler";
 import { buildRequestLogger, buildResponseLogger } from "./middleware/logging";
 import {
-  createBodyValidatorMiddleware,
-  createQueryValidatorMiddleware,
+  buildBodyValidatorMiddleware,
+  buildQueryValidatorMiddleware,
 } from "./middleware/validation";
 import { Logger, NoOpLogger } from "./utils/logging";
 import { hasNoValue } from "./utils/typeGuards";
@@ -61,7 +64,7 @@ function registerApiEndpoint(
   if (isWithValue<"querySchema", ZodType>("querySchema", endpointHandler)) {
     expressApp[endpointHandler.method](
       endpointHandler.path,
-      createQueryValidatorMiddleware(endpointHandler.querySchema),
+      buildQueryValidatorMiddleware(endpointHandler.querySchema),
     );
   }
 
@@ -73,12 +76,12 @@ function registerApiEndpoint(
   ) {
     expressApp[endpointHandler.method](
       endpointHandler.path,
-      createBodyValidatorMiddleware(endpointHandler.requestBodySchema),
+      buildBodyValidatorMiddleware(endpointHandler.requestBodySchema),
     );
   }
 
   expressApp[endpointHandler.method](
     endpointHandler.path,
-    endpointHandler.handler,
+    buildApiEndpointHandler(endpointHandler),
   );
 }
