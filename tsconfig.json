@@ -6,6 +6,8 @@
     "moduleResolution": "bundler",
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
+    "declaration": true,
+    "outDir": "./dist"
   },
   "include": [
     "./src/**/*",

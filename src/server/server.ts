@@ -1,18 +1,17 @@
 import cookieParser from "cookie-parser";
 import express, { Application } from "express";
-import { ZodType } from "zod";
-import {
-  ApiEndpointHandler,
-  buildApiEndpointHandler,
-} from "./handlers/api/createApiHandler";
+import z from "zod";
+import { HttpMethod } from "./constants/HttpMethods";
+import { buildApiEndpointHandler } from "./handlers/api/createApiHandler";
+import { ApiEndpointDefinition } from "./handlers/api/EndpointDefinition";
+import { ApiEndpointHandler } from "./handlers/api/EndpointHandler";
 import { buildRequestLogger, buildResponseLogger } from "./middleware/logging";
 import {
   buildBodyValidatorMiddleware,
   buildQueryValidatorMiddleware,
 } from "./middleware/validation";
 import { Logger, NoOpLogger } from "./utils/logging";
-import { hasNoValue } from "./utils/typeGuards";
-import { isWithValue } from "./utils/types";
+import { hasNoValue, hasValue } from "./utils/typeGuards";
 
 export interface ServerOptions {
   inDevMode?: boolean;
@@ -23,7 +22,16 @@ export interface Server {
   _expressApp: Application;
   _logger: Logger | boolean;
   start: () => void;
-  registerApiEndpoint: (endpointHandler: ApiEndpointHandler) => void;
+  registerApiEndpoint: (endpoint: {
+    endpointHandler: ApiEndpointHandler;
+    endpointDefinition: ApiEndpointDefinition<
+      string,
+      HttpMethod,
+      z.ZodType,
+      z.ZodType,
+      {}
+    >;
+  }) => void;
 }
 
 export function createServer(options: ServerOptions): Server {
@@ -51,37 +59,32 @@ export function createServer(options: ServerOptions): Server {
     start: () => {
       app.listen(port);
     },
-    registerApiEndpoint: (endpointHandler) => {
-      registerApiEndpoint(app, endpointHandler);
+    registerApiEndpoint: ({ endpointDefinition, endpointHandler }) => {
+      registerApiEndpoint(app, endpointDefinition, endpointHandler);
     },
   };
 }
 
 function registerApiEndpoint(
   expressApp: Application,
+  endpointDefinition: ApiEndpointDefinition<
+    string,
+    HttpMethod,
+    z.ZodType,
+    z.ZodType,
+    {}
+  >,
   endpointHandler: ApiEndpointHandler,
 ) {
-  if (isWithValue<"querySchema", ZodType>("querySchema", endpointHandler)) {
-    expressApp[endpointHandler.method](
-      endpointHandler.path,
-      buildQueryValidatorMiddleware(endpointHandler.querySchema),
-    );
-  }
-
-  if (
-    isWithValue<"requestBodySchema", ZodType>(
-      "requestBodySchema",
-      endpointHandler,
-    )
-  ) {
-    expressApp[endpointHandler.method](
-      endpointHandler.path,
-      buildBodyValidatorMiddleware(endpointHandler.requestBodySchema),
-    );
-  }
-
-  expressApp[endpointHandler.method](
-    endpointHandler.path,
+  const handlerStack = [
+    hasValue(endpointDefinition.querySchema)
+      ? buildQueryValidatorMiddleware(endpointDefinition.querySchema)
+      : null,
+    hasValue(endpointDefinition.requestBodySchema)
+      ? buildBodyValidatorMiddleware(endpointDefinition.requestBodySchema)
+      : null,
     buildApiEndpointHandler(endpointHandler),
-  );
+  ].filter(hasValue);
+
+  expressApp[endpointDefinition.method](endpointDefinition.path, handlerStack);
 }
