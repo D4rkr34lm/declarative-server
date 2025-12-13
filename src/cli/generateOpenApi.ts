@@ -1,62 +1,14 @@
-import { glob } from "glob";
-import path from "path";
 import z from "zod";
 import { HttpMethod } from "../server/constants/HttpMethods";
 import { ApiEndpointDefinition } from "../server/handlers/api/EndpointDefinition";
 import { GenericResponseSchemaMap } from "../server/handlers/api/responses";
-import { hasNoValue, hasValue } from "../server/utils/typeGuards";
+import { hasValue } from "../server/utils/typeGuards";
 
 import { ZodType } from "zod";
 
 import { OpenAPIV3 } from "openapi-types";
+import path from "path";
 import { isJsonResponseSchema } from "../server/handlers/api/responses/jsonResponse";
-
-async function findEndpointDefinitions(targetPath: string) {
-  const files = await glob("**/*.ts", {
-    cwd: path.resolve(process.cwd(), targetPath),
-    ignore: ["**/node_modules/**", "**/*.spec.ts"],
-  });
-
-  const definitions = await Promise.all(
-    files.map(async (file) => {
-      const absolutePath = path.resolve(file);
-      const fileUrl = path.toNamespacedPath(absolutePath).startsWith("/")
-        ? `file://${absolutePath}`
-        : `file:///${absolutePath}`;
-
-      try {
-        const module = await import(fileUrl);
-        if (
-          module.default &&
-          module.default.type === "__API_ENDPOINT_DEFINITION__"
-        ) {
-          const def = module.default.definition as
-            | ApiEndpointDefinition<
-                string,
-                HttpMethod,
-                z.ZodType | undefined,
-                z.ZodType | undefined,
-                GenericResponseSchemaMap
-              >
-            | undefined;
-
-          if (hasNoValue(def)) {
-            return null;
-          }
-
-          return def;
-        } else {
-          return null;
-        }
-      } catch (error) {
-        console.error(`Error importing ${file}:`, error);
-        return null;
-      }
-    }),
-  );
-
-  return definitions.filter(hasValue);
-}
 
 function extractPathAndParameters(path: string): {
   openApiPath: string;
@@ -190,31 +142,54 @@ function translateToOpenAPIPathItem(
 }
 
 export async function generateOpenApiDoc(targetPath: string) {
-  const definitions = await findEndpointDefinitions(targetPath);
+  const serverModule = await import(path.resolve(process.cwd(), targetPath));
 
-  const paths = definitions.reduce<OpenAPIV3.PathsObject>((acc, def) => {
-    const [openApiPath, pathItem] = translateToOpenAPIPathItem(def);
+  const server = serverModule.default;
 
-    if (acc[openApiPath]) {
-      acc[openApiPath] = {
-        ...acc[openApiPath],
-        ...pathItem,
-      };
-    } else {
-      acc[openApiPath] = pathItem;
-    }
+  if (
+    hasValue(server) &&
+    hasValue(server.endpointDefinitions) &&
+    Array.isArray(server.endpointDefinitions)
+  ) {
+    const endpointDefinitions: ApiEndpointDefinition<
+      string,
+      HttpMethod,
+      ZodType,
+      ZodType,
+      GenericResponseSchemaMap
+    >[] = server.endpointDefinitions;
 
-    return acc;
-  }, {});
+    const paths = endpointDefinitions.reduce<OpenAPIV3.PathsObject>(
+      (acc, def) => {
+        const [openApiPath, pathItem] = translateToOpenAPIPathItem(def);
 
-  const openApiDocument: OpenAPIV3.Document = {
-    openapi: "3.0.0",
-    info: {
-      title: "Generated API",
-      version: "1.0.0",
-    },
-    paths: paths,
-  };
+        if (acc[openApiPath]) {
+          acc[openApiPath] = {
+            ...acc[openApiPath],
+            ...pathItem,
+          };
+        } else {
+          acc[openApiPath] = pathItem;
+        }
 
-  return openApiDocument;
+        return acc;
+      },
+      {},
+    );
+
+    const openApiDocument: OpenAPIV3.Document = {
+      openapi: "3.0.0",
+      info: {
+        title: "Generated API",
+        version: "1.0.0",
+      },
+      paths: paths,
+    };
+
+    return openApiDocument;
+  } else {
+    throw new Error(
+      "The specified module does not export a valid server instance.",
+    );
+  }
 }

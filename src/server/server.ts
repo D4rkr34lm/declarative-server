@@ -31,6 +31,13 @@ export interface ServerConfig {
 export interface Server {
   expressApp: Application;
   logger: Logger | boolean;
+  endpointDefinitions: ApiEndpointDefinition<
+    string,
+    HttpMethod,
+    z.ZodType,
+    z.ZodType,
+    {}
+  >[];
   start: () => void;
 }
 
@@ -84,6 +91,7 @@ export function createServer(config: ServerConfig): Server {
   return {
     expressApp: app,
     logger: logger,
+    endpointDefinitions: endpoints.map((e) => e.endpointDefinition),
     start: () => {
       app.listen(port);
     },
