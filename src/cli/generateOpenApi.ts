@@ -26,8 +26,11 @@ async function findEndpointDefinitions(targetPath: string) {
 
       try {
         const module = await import(fileUrl);
-        if (module.default) {
-          const def = module.default.__API_ENDPOINT_DEFINITION__ as
+        if (
+          module.default &&
+          module.default.type === "__API_ENDPOINT_DEFINITION__"
+        ) {
+          const def = module.default.definition as
             | ApiEndpointDefinition<
                 string,
                 HttpMethod,

@@ -25,7 +25,7 @@ export function createApiEndpointHandler<
   handler: HandlerForDefinition<Path, RequestBody, Query, ResponsesMap>,
 ) {
   return {
-    __API_ENDPOINT_DEFINITION__: definition,
+    type: "__API_ENDPOINT_DEFINITION__",
     definition,
     handler,
   };

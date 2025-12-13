@@ -13,16 +13,11 @@ import {
 import { Logger, NoOpLogger } from "./utils/logging";
 import { hasNoValue, hasValue } from "./utils/typeGuards";
 
-export interface ServerOptions {
-  inDevMode?: boolean;
-  port?: number;
-  logger?: Logger | boolean;
-}
-export interface Server {
-  _expressApp: Application;
-  _logger: Logger | boolean;
-  start: () => void;
-  registerApiEndpoint: (endpoint: {
+export interface ServerConfig {
+  inDevMode: boolean;
+  port: number;
+  logger: Logger | boolean;
+  endpoints: Array<{
     endpointHandler: ApiEndpointHandler;
     endpointDefinition: ApiEndpointDefinition<
       string,
@@ -31,38 +26,12 @@ export interface Server {
       z.ZodType,
       {}
     >;
-  }) => void;
+  }>;
 }
-
-export function createServer(options: ServerOptions): Server {
-  const { port = 3000, inDevMode = false } = options;
-
-  const logger: Logger =
-    options.logger === true
-      ? console
-      : options.logger === false || hasNoValue(options.logger)
-        ? NoOpLogger
-        : options.logger;
-
-  const app = express();
-
-  app.use(express.json());
-  app.use(express.urlencoded({ extended: true }));
-  app.use(cookieParser());
-
-  app.use(buildRequestLogger(logger, inDevMode));
-  app.use(buildResponseLogger(logger, inDevMode));
-
-  return {
-    _expressApp: app,
-    _logger: logger,
-    start: () => {
-      app.listen(port);
-    },
-    registerApiEndpoint: ({ endpointDefinition, endpointHandler }) => {
-      registerApiEndpoint(app, endpointDefinition, endpointHandler);
-    },
-  };
+export interface Server {
+  expressApp: Application;
+  logger: Logger | boolean;
+  start: () => void;
 }
 
 function registerApiEndpoint(
@@ -87,4 +56,36 @@ function registerApiEndpoint(
   ].filter(hasValue);
 
   expressApp[endpointDefinition.method](endpointDefinition.path, handlerStack);
+}
+
+export function createServer(config: ServerConfig): Server {
+  const { port, inDevMode, endpoints } = config;
+
+  const logger: Logger =
+    config.logger === true
+      ? console
+      : config.logger === false || hasNoValue(config.logger)
+        ? NoOpLogger
+        : config.logger;
+
+  const app = express();
+
+  app.use(express.json());
+  app.use(express.urlencoded({ extended: true }));
+  app.use(cookieParser());
+
+  app.use(buildRequestLogger(logger, inDevMode));
+  app.use(buildResponseLogger(logger, inDevMode));
+
+  endpoints.forEach(({ endpointDefinition, endpointHandler }) => {
+    registerApiEndpoint(app, endpointDefinition, endpointHandler);
+  });
+
+  return {
+    expressApp: app,
+    logger: logger,
+    start: () => {
+      app.listen(port);
+    },
+  };
 }
