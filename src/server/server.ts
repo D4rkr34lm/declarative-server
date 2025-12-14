@@ -5,6 +5,10 @@ import { HttpMethod } from "./constants/HttpMethods";
 import { buildApiEndpointHandler } from "./handlers/api/createApiHandler";
 import { ApiEndpointDefinition } from "./handlers/api/EndpointDefinition";
 import { ApiEndpointHandler } from "./handlers/api/EndpointHandler";
+import {
+  GenericResponse,
+  GenericResponseSchemaMap,
+} from "./handlers/api/responses";
 import { buildRequestLogger, buildResponseLogger } from "./middleware/logging";
 import {
   buildBodyValidatorMiddleware,
@@ -18,13 +22,18 @@ export interface ServerConfig {
   port: number;
   logger: Logger | boolean;
   endpoints: Array<{
-    endpointHandler: ApiEndpointHandler;
-    endpointDefinition: ApiEndpointDefinition<
+    handler: ApiEndpointHandler<
+      Record<string, string>,
+      any,
+      any,
+      GenericResponse
+    >;
+    definition: ApiEndpointDefinition<
       string,
       HttpMethod,
-      z.ZodType,
-      z.ZodType,
-      {}
+      z.ZodType | undefined,
+      z.ZodType | undefined,
+      GenericResponseSchemaMap
     >;
   }>;
 }
@@ -34,9 +43,9 @@ export interface Server {
   endpointDefinitions: ApiEndpointDefinition<
     string,
     HttpMethod,
-    z.ZodType,
-    z.ZodType,
-    {}
+    z.ZodType | undefined,
+    z.ZodType | undefined,
+    GenericResponseSchemaMap
   >[];
   start: () => void;
 }
@@ -46,11 +55,16 @@ function registerApiEndpoint(
   endpointDefinition: ApiEndpointDefinition<
     string,
     HttpMethod,
-    z.ZodType,
-    z.ZodType,
-    {}
+    z.ZodType | undefined,
+    z.ZodType | undefined,
+    GenericResponseSchemaMap
   >,
-  endpointHandler: ApiEndpointHandler,
+  endpointHandler: ApiEndpointHandler<
+    Record<string, string>,
+    any,
+    any,
+    GenericResponse
+  >,
 ) {
   const handlerStack = [
     hasValue(endpointDefinition.querySchema)
@@ -84,14 +98,14 @@ export function createServer(config: ServerConfig): Server {
   app.use(buildRequestLogger(logger, inDevMode));
   app.use(buildResponseLogger(logger, inDevMode));
 
-  endpoints.forEach(({ endpointDefinition, endpointHandler }) => {
-    registerApiEndpoint(app, endpointDefinition, endpointHandler);
+  endpoints.forEach(({ definition, handler }) => {
+    registerApiEndpoint(app, definition, handler);
   });
 
   return {
     expressApp: app,
     logger: logger,
-    endpointDefinitions: endpoints.map((e) => e.endpointDefinition),
+    endpointDefinitions: endpoints.map((e) => e.definition),
     start: () => {
       app.listen(port);
     },

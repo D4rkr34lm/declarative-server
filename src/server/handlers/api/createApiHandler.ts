@@ -5,7 +5,7 @@ import { HttpMethod } from "../../constants/HttpMethods";
 import { ApiEndpointDefinition } from "./EndpointDefinition";
 import { ApiEndpointHandler } from "./EndpointHandler";
 import { HandlerForDefinition } from "./HandlerFromDefinition";
-import { GenericResponseSchemaMap } from "./responses";
+import { GenericResponse, GenericResponseSchemaMap } from "./responses";
 import { isJsonResponse } from "./responses/jsonResponse";
 
 export function createApiEndpointHandler<
@@ -25,13 +25,19 @@ export function createApiEndpointHandler<
   handler: HandlerForDefinition<Path, RequestBody, Query, ResponsesMap>,
 ) {
   return {
-    type: "__API_ENDPOINT_DEFINITION__",
     definition,
     handler,
   };
 }
 
-export function buildApiEndpointHandler(handler: ApiEndpointHandler) {
+export function buildApiEndpointHandler(
+  handler: ApiEndpointHandler<
+    Record<string, string>,
+    unknown,
+    unknown,
+    GenericResponse
+  >,
+) {
   return expressAsyncHandler(async (request: Request, response: Response) => {
     const result = await handler(request);
 

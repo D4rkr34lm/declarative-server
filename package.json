@@ -1,6 +1,6 @@
 {
   "name": "transit-kit",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "A declarative TypeScript framework for building type-safe Express.js APIs with automatic OpenAPI generation",
   "keywords": [
     "express",
@@ -42,6 +42,7 @@
   "devDependencies": {
     "@types/cookie-parser": "^1.4.9",
     "@types/express": "^5.0.0",
+    "@types/supertest": "^6.0.3",
     "@vitest/coverage-v8": "^4.0.15",
     "@vitest/eslint-plugin": "^1.5.2",
     "eslint": "^9.39.1",
@@ -49,6 +50,7 @@
     "eslint-plugin-prettier": "^5.5.4",
     "jiti": "^2.6.1",
     "prettier": "^3.7.4",
+    "supertest": "^7.1.4",
     "tslib": "2.8.1",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.49.0",

@@ -4,7 +4,7 @@ import { HttpStatusCodes } from "../../constants/HttpStatusCodes";
 import { GenericResponse } from "./responses";
 
 export type ApiEndpointHandler<
-  PathParams extends Record<string, string> | undefined = {},
+  PathParams extends Record<string, string> = {},
   RequestBody = unknown,
   Query = unknown,
   Responses extends GenericResponse = never,

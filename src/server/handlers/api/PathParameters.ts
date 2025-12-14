@@ -7,4 +7,4 @@ export type ExtractPathParams<Path extends string> =
       ? {
           [K in Param]: string;
         }
-      : undefined;
+      : {};
