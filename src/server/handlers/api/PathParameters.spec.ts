@@ -23,6 +23,6 @@ describe("ExtractPathParameters", () => {
     type Path = "/test/path/without";
     type ParamObject = ExtractPathParams<Path>;
 
-    expectTypeOf<ParamObject>().toEqualTypeOf<undefined>();
+    expectTypeOf<ParamObject>().toEqualTypeOf<{}>();
   });
 });
