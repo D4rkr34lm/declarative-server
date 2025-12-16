@@ -30,14 +30,14 @@ export function createApiEndpointHandler<
   };
 }
 
-export function buildApiEndpointHandler(
-  handler: ApiEndpointHandler<
+export function buildApiEndpointHandler<
+  Handler extends ApiEndpointHandler<
     Record<string, string>,
     unknown,
     unknown,
     GenericResponse
   >,
-) {
+>(handler: Handler) {
   return expressAsyncHandler(async (request: Request, response: Response) => {
     const result = await handler(request);
 

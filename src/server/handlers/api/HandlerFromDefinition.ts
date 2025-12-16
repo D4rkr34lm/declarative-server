@@ -20,14 +20,17 @@ export type HandlerForDefinition<
   RequestBody extends undefined ? undefined : z.infer<RequestBody>,
   Query extends undefined ? undefined : z.infer<Query>,
   Prettify<
-    {
-      [K in keyof ResponsesMap]: K extends HttpStatusCode
-        ? ResponsesMap[K] extends JsonResponseSchema
-          ? JsonResponseSchemaToResponseType<K, ResponsesMap[K]>
-          : ResponsesMap[K] extends EmptyResponseSchema
-            ? EmptyResponse<K>
-            : never
-        : never;
-    }[keyof ResponsesMap]
+    Exclude<
+      {
+        [K in keyof ResponsesMap]: K extends HttpStatusCode
+          ? ResponsesMap[K] extends JsonResponseSchema
+            ? JsonResponseSchemaToResponseType<K, ResponsesMap[K]>
+            : ResponsesMap[K] extends EmptyResponseSchema
+              ? EmptyResponse<K>
+              : never
+          : never;
+      }[keyof ResponsesMap],
+      undefined
+    >
   >
 >;
