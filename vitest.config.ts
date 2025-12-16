@@ -10,7 +10,7 @@ export default defineConfig({
     environment: "node",
     coverage: {
       provider: "v8",
-      reporter: ["html-spa", "text"],
+      reporter: ["text", "lcov"],
       include: ["*"],
       reportsDirectory: "../coverage",
       enabled: true,

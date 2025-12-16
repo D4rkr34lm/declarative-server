@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [main, develop]
+    branches: [main]
   pull_request:
-    branches: [main, develop]
+    branches: [main]
 
 jobs:
   lint:
@@ -44,6 +44,11 @@ jobs:
 
       - name: 🧪 Run tests
         run: npm run test -- --run
+
+      - name: 📊 Upload to Coveralls
+        uses: coverallsapp/github-action@v2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
   build:
     name: 🏗️ Build
