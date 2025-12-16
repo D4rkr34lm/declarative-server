@@ -50,8 +50,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           file: ./coverage/lcov.info
-          base-path: ./ # Try changing this to 'server' if your code is in a server folder
-          debug: true
+          base-path: ./src # Try changing this to 'server' if your code is in a server folder
 
   build:
     name: 🏗️ Build
