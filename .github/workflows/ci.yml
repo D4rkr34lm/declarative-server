@@ -49,6 +49,9 @@ jobs:
         uses: coverallsapp/github-action@v2
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
+          file: ./coverage/lcov.info
+          base-path: ./ # Try changing this to 'server' if your code is in a server folder
+          debug: true
 
   build:
     name: 🏗️ Build
