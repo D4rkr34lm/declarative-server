@@ -193,3 +193,7 @@ export async function generateOpenApiDoc(targetPath: string) {
     );
   }
 }
+
+export const __TEST_EXPORTS = {
+  translateToOpenAPIPathItem,
+};
