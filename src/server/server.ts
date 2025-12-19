@@ -86,6 +86,7 @@ export function createServer(config: ServerConfig): Server {
     endpointDefinitions: [],
     registerApiEndpoint(endpoint) {
       registerApiEndpoint(app, endpoint);
+      this.endpointDefinitions.push(endpoint.definition);
     },
     start() {
       app.listen(port);

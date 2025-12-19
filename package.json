@@ -1,6 +1,6 @@
 {
   "name": "transit-kit",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "A declarative TypeScript framework for building type-safe Express.js APIs with automatic OpenAPI generation",
   "keywords": [
     "express",
