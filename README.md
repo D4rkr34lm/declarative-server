@@ -158,6 +158,131 @@ server.registerApiEndpoint(createUserEndpoint);
 server.start();
 ```
 
+## Authentication
+
+Transit-kit includes a simple, composable authentication mechanism based on `Authorization` headers. You declare one or more `SecurityScheme`s on an endpoint, and the framework will:
+
+- Apply an authentication middleware for that endpoint
+- Try all declared schemes in order and pick the first successful one
+- Return `401 Unauthorized` automatically when authentication fails
+- Inject the authenticated `caller` into your endpoint handler
+
+### Basic Auth
+
+Supports `Authorization: Basic <base64(username:password)>`.
+
+```typescript
+import {
+  createApiEndpointHandler,
+  createServer,
+} from "transit-kit/server";
+import { createBasicAuthSchema } from "transit-kit/server/security/basicAuth";
+import z from "zod";
+
+// Define the shape of the authenticated caller
+type Caller = { id: string; role: "admin" | "user" };
+
+// Your validation logic (DB lookup, etc.)
+const basicAuth = createBasicAuthSchema<Caller>(
+  "basic",
+  async (username, password) => {
+    const user = await findUserByUsername(username);
+    if (!user) return null;
+    const ok = await verifyPassword(password, user.passwordHash);
+    return ok ? { id: user.id, role: user.role } : null;
+  },
+);
+
+const getProfile = createApiEndpointHandler(
+  {
+    meta: { name: "Get Profile", description: "Returns caller profile", group: "Auth" },
+    method: "get",
+    path: "/me",
+    responseSchemas: {
+      200: {
+        dataType: "application/json",
+        dataSchema: z.object({ id: z.string(), role: z.enum(["admin", "user"]) }),
+      },
+      401: {},
+    },
+    // Enable authentication for this endpoint
+    securitySchemes: [basicAuth],
+  },
+  async (_req, { caller }) => {
+    // `caller` is typed from your security scheme
+    return { code: 200, dataType: "application/json", json: caller };
+  },
+);
+
+const server = createServer({ port: 3000, inDevMode: true, logger: true });
+server.registerApiEndpoint(getProfile);
+server.start();
+```
+
+### Bearer Token Auth
+
+Supports `Authorization: Bearer <token>`.
+
+```typescript
+import { createBearerAuthSchema } from "transit-kit/server/security/bearerAuth";
+
+type Caller = { id: string; scopes: string[] };
+
+const bearerAuth = createBearerAuthSchema<Caller>(
+  "bearer",
+  async (token) => {
+    const payload = await verifyJwt(token); // or call your token introspection service
+    return payload ? { id: payload.sub, scopes: payload.scopes } : null;
+  },
+);
+
+const getSecret = createApiEndpointHandler(
+  {
+    meta: { name: "Get Secret", description: "Protected resource", group: "Auth" },
+    method: "get",
+    path: "/secret",
+    responseSchemas: {
+      200: { dataType: "application/json", dataSchema: z.object({ secret: z.string() }) },
+      401: {},
+    },
+    securitySchemes: [bearerAuth],
+  },
+  async (_req, { caller }) => {
+    // Use `caller.scopes` for authorization decisions
+    return { code: 200, dataType: "application/json", json: { secret: "shh" } };
+  },
+);
+```
+
+### Multiple Schemes per Endpoint
+
+You can allow multiple authentication methods on the same endpoint. The framework tries them in the order you specify and picks the first successful scheme.
+
+```typescript
+const endpoint = createApiEndpointHandler(
+  {
+    meta: { name: "Hybrid Auth", description: "Basic or Bearer", group: "Auth" },
+    method: "get",
+    path: "/hybrid",
+    responseSchemas: { 200: { dataType: "application/json", dataSchema: z.object({ ok: z.boolean() }) }, 401: {} },
+    securitySchemes: [basicAuth, bearerAuth],
+  },
+  async (_req, { caller }) => {
+    // `caller` resolves from whichever scheme authenticated successfully
+    return { code: 200, dataType: "application/json", json: { ok: true } };
+  },
+);
+```
+
+### How It Works
+
+- Authentication middleware is built automatically per-endpoint when `securitySchemes` are present.
+- Internals use `authenticate()` from [src/server/security/SecuritySchema.ts](src/server/security/SecuritySchema.ts) to try each scheme.
+- Basic auth reads and decodes the header in [src/server/security/basicAuth.ts](src/server/security/basicAuth.ts).
+- Bearer auth reads the header in [src/server/security/bearerAuth.ts](src/server/security/bearerAuth.ts).
+- On success, the authenticated `caller` is stored and passed to your handler as `extractedRequestData.caller`.
+- On failure, the framework responds with `401` and a JSON `{ message: "Unauthorized" }` from [src/server/middleware/auth.ts](src/server/middleware/auth.ts).
+
 ## Response Types
 
 ### JSON Response
