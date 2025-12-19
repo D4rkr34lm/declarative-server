@@ -51,6 +51,27 @@ function extractQueryParameters(
   }
 }
 
+function extractRequestSecuritySchemes(
+  definition: ApiEndpointDefinition,
+): OpenAPIV3.SecurityRequirementObject[] {
+  const securitySchemes = definition.securitySchemes;
+
+  if (hasValue(securitySchemes)) {
+    return securitySchemes.map((schema) => {
+      switch (schema.type) {
+        case "http":
+          return {
+            [schema.name]: [],
+          } as OpenAPIV3.SecurityRequirementObject;
+        default:
+          throw new Error(`Unsupported security scheme type: ${schema.type}`);
+      }
+    });
+  } else {
+    return [];
+  }
+}
+
 function translateToOpenAPIPathItem(
   definition: ApiEndpointDefinition<
     string,
@@ -124,6 +145,9 @@ function translateToOpenAPIPathItem(
       return { ...acc, ...resp };
     }, {});
 
+  // 5. Security Requirements
+  const securityRequirements = extractRequestSecuritySchemes(definition);
+
   const operation: OpenAPIV3.OperationObject = {
     operationId: meta.name,
     summary: meta.description,
@@ -132,6 +156,7 @@ function translateToOpenAPIPathItem(
     parameters: operationParameters,
     ...requestBody,
     responses,
+    security: securityRequirements,
   };
 
   const pathItem: OpenAPIV3.PathItemObject = {
@@ -139,6 +164,37 @@ function translateToOpenAPIPathItem(
   };
 
   return [openApiPath, pathItem];
+}
+
+function extractSecuritySchemes(
+  endpointDefinitions: ApiEndpointDefinition[],
+): OpenAPIV3.ComponentsObject["securitySchemes"] {
+  const securitySchemes = Array.from(
+    new Set(
+      endpointDefinitions
+        .map((def) => def.securitySchemes)
+        .filter(hasValue)
+        .flat(),
+    ),
+  );
+
+  const openApiSecuritySchemes = securitySchemes.map((scheme) => {
+    switch (scheme.type) {
+      case "http":
+        return {
+          [scheme.name]: {
+            type: "http",
+            scheme: scheme.scheme,
+          } as OpenAPIV3.HttpSecurityScheme,
+        };
+      default:
+        throw new Error(`Unsupported security scheme type: ${scheme.type}`);
+    }
+  });
+
+  return openApiSecuritySchemes.reduce((acc, scheme) => {
+    return { ...acc, ...scheme };
+  }, {});
 }
 
 export async function generateOpenApiDoc(targetPath: string) {
@@ -177,6 +233,8 @@ export async function generateOpenApiDoc(targetPath: string) {
       {},
     );
 
+    const securitySchemes = extractSecuritySchemes(endpointDefinitions);
+
     const openApiDocument: OpenAPIV3.Document = {
       openapi: "3.0.0",
       info: {
@@ -184,6 +242,9 @@ export async function generateOpenApiDoc(targetPath: string) {
         version: "1.0.0",
       },
       paths: paths,
+      components: {
+        securitySchemes,
+      },
     };
 
     return openApiDocument;

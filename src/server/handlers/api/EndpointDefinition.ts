@@ -15,7 +15,7 @@ export type ApiEndpointDefinition<
   RequestBody extends z.ZodType | undefined = z.ZodType | undefined,
   Query extends z.ZodType | undefined = z.ZodType | undefined,
   ResponseMap extends GenericResponseSchemaMap = GenericResponseSchemaMap,
-  SecuritySchemes extends SecurityScheme<unknown>[] = [],
+  SecuritySchemes extends SecurityScheme<unknown>[] = SecurityScheme<unknown>[],
 > = {
   meta: ApiEndpointMeta;
   path: Path;

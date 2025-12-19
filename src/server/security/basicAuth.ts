@@ -2,6 +2,7 @@ import { Request } from "express";
 import { hasNoValue } from "../utils/typeGuards";
 
 export interface BasicAuthScheme<Caller = unknown> {
+  name: string;
   type: "http";
   scheme: "basic";
   validateCaller: (
@@ -11,12 +12,14 @@ export interface BasicAuthScheme<Caller = unknown> {
 }
 
 export function createBasicAuthSchema<Caller>(
+  name: string,
   validateCaller: (
     username: string,
     password: string,
   ) => Promise<Caller | null>,
 ): BasicAuthScheme<Caller> {
   return {
+    name,
     type: "http",
     scheme: "basic",
     validateCaller,
