@@ -23,5 +23,5 @@ export type ApiEndpointDefinition<
   requestBodySchema?: RequestBody;
   querySchema?: Query;
   responseSchemas: ResponseMap;
-  securitySchemes?: SecuritySchemes;
+  securitySchemes: SecuritySchemes;
 };

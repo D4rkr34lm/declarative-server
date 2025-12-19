@@ -4,22 +4,30 @@ import { createApiEndpointHandler } from "./createApiHandler";
 
 import testRequest from "supertest";
 import z from "zod";
+import { HttpMethods } from "../../constants/HttpMethods";
+
+export const testEndpointBase = {
+  meta: {
+    name: "getTest",
+    description: "Gets test element",
+    group: "test",
+  },
+  method: HttpMethods.get,
+  requestBodySchema: z.object({
+    name: z.string(),
+  }),
+  path: "/test",
+  securitySchemes: [],
+  responseSchemas: {
+    200: {},
+  },
+};
 
 describe("createApiHandler", () => {
   it("can create an API handler", () => {
     const endpoint = createApiEndpointHandler(
       {
-        meta: {
-          name: "",
-          description: "",
-          group: "",
-        },
-        method: "get",
-        path: "/test",
-        requestBodySchema: z.string(),
-        responseSchemas: {
-          200: {},
-        },
+        ...testEndpointBase,
       },
       async () => {
         return {

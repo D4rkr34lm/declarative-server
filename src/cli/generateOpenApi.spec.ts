@@ -17,6 +17,7 @@ describe("translateToOpenAPIPathItem", () => {
           description: "Retrieve a user by ID",
           group: "User",
         },
+        securitySchemes: [],
         responseSchemas: {
           200: {
             dataType: "application/json",

@@ -28,7 +28,13 @@ export function createApiEndpointHandler<
       SecuritySchemas
     >
   >,
-  handler: HandlerForDefinition<Path, RequestBody, Query, ResponsesMap>,
+  handler: HandlerForDefinition<
+    Path,
+    RequestBody,
+    Query,
+    ResponsesMap,
+    SecuritySchemas
+  >,
 ) {
   return {
     definition,
@@ -41,7 +47,8 @@ export function buildApiEndpointHandler<
     Record<string, string>,
     unknown,
     unknown,
-    GenericResponse
+    GenericResponse,
+    unknown
   >,
 >(handler: Handler) {
   return expressAsyncHandler(async (request: Request, response: Response) => {

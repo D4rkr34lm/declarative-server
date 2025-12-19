@@ -32,7 +32,8 @@ export interface Server {
       Definition["path"],
       Definition["requestBodySchema"],
       Definition["querySchema"],
-      Definition["responseSchemas"]
+      Definition["responseSchemas"],
+      Definition["securitySchemes"]
     >;
   }): void;
   start: () => void;
