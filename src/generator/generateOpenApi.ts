@@ -10,6 +10,47 @@ import { OpenAPIV3 } from "openapi-types";
 import { Server } from "../server";
 import { isJsonResponseSchema } from "../server/handlers/api/responses/jsonResponse";
 
+function prepareForJsonSchema(schema: z.ZodType): z.ZodType {
+  // 1. Handle Dates (The Core Issue)
+  if (schema instanceof z.ZodDate) {
+    return z.string().datetime().describe("ISO 8601 date-time string");
+  }
+
+  // 2. Handle Objects
+  if (schema instanceof z.ZodObject) {
+    const newShape: Record<string, z.ZodTypeAny> = {};
+    for (const key in schema.shape) {
+      newShape[key] = prepareForJsonSchema(schema.shape[key]);
+    }
+    return z.object(newShape);
+  }
+
+  // 3. Handle Arrays
+  if (schema instanceof z.ZodArray) {
+    return z.array(prepareForJsonSchema(schema.element as z.ZodType));
+  }
+
+  // 4. Handle Optionals
+  if (schema instanceof z.ZodOptional) {
+    return prepareForJsonSchema(schema.unwrap() as z.ZodType).optional();
+  }
+
+  // 5. Handle Nullables
+  if (schema instanceof z.ZodNullable) {
+    return prepareForJsonSchema(schema.unwrap() as z.ZodType).nullable();
+  }
+
+  // 7. Handle Unions
+  if (schema instanceof z.ZodUnion) {
+    return z.union(
+      schema.options.map((option) => prepareForJsonSchema(option as z.ZodType)),
+    );
+  }
+
+  // Return as-is if no transformation is needed
+  return schema;
+}
+
 function extractPathAndParameters(path: string): {
   openApiPath: string;
   parameters: OpenAPIV3.ParameterObject[];
@@ -35,7 +76,7 @@ function extractPathAndParameters(path: string): {
 function extractQueryParameters(
   querySchema: ZodType,
 ): OpenAPIV3.ParameterObject[] {
-  const querySchemaObject = z.toJSONSchema(querySchema);
+  const querySchemaObject = z.toJSONSchema(prepareForJsonSchema(querySchema));
 
   if (querySchemaObject.properties) {
     return Object.entries(querySchemaObject.properties).map(
@@ -108,7 +149,7 @@ function translateToOpenAPIPathItem(
           content: {
             "application/json": {
               schema: z.toJSONSchema(
-                requestBodySchema,
+                prepareForJsonSchema(requestBodySchema),
               ) as OpenAPIV3.SchemaObject, // Type assertion
             },
           },
@@ -121,7 +162,7 @@ function translateToOpenAPIPathItem(
     .map(([statusCode, responseDef]) => {
       if (isJsonResponseSchema(responseDef)) {
         const zodSchema = responseDef.dataSchema as ZodType;
-        const responseSchema = z.toJSONSchema(zodSchema);
+        const responseSchema = z.toJSONSchema(prepareForJsonSchema(zodSchema));
 
         return {
           [statusCode]: {
