@@ -42,6 +42,8 @@ export function buildBasicAuthenticator<Caller>(
     );
     const [username, password] = credentials.split(":", 2);
 
+    console.log("Decoded credentials:", { username, password });
+
     return scheme.validateCaller(username, password);
   };
 }
