@@ -120,25 +120,21 @@ function translateToOpenAPIPathItem(
   const responses = Object.entries(responseSchemas)
     .map(([statusCode, responseDef]) => {
       if (isJsonResponseSchema(responseDef)) {
-        const zodSchema = responseDef.dataSchema as ZodType;
+        const zodSchema = responseDef.schema as ZodType;
         const responseSchema = z.toJSONSchema(zodSchema, { io: "input" });
 
         return {
           [statusCode]: {
             description: `Response for status code ${statusCode}`,
             content: {
-              [responseDef.dataType]: {
+              ["application/json"]: {
                 schema: responseSchema as OpenAPIV3.SchemaObject,
               },
             },
           } as OpenAPIV3.ResponseObject,
         };
       } else {
-        return {
-          [statusCode]: {
-            description: `Response for status code ${statusCode}`,
-          } as OpenAPIV3.ResponseObject,
-        };
+        throw new Error(`Unsupported response schema type: ${responseDef}`);
       }
     })
     .reduce((acc, resp) => {

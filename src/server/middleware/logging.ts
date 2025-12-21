@@ -22,7 +22,7 @@ export function buildResponseLogger(logger: Logger, isInDevMode: boolean) {
   return (req: Request, res: Response, next: NextFunction) => {
     const originalSend = res.send;
 
-    res.json = function (body: unknown): Response {
+    res.send = function (body: unknown): Response {
       logger.info(
         `[Response] ${colors.cyan(req.method)} - ${colors.cyan(
           req.path,

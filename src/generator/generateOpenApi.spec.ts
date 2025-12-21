@@ -20,16 +20,15 @@ describe("translateToOpenAPIPathItem", () => {
         securitySchemes: [],
         responseSchemas: {
           200: {
-            dataType: "application/json",
-            dataSchema: z.string(),
+            type: "json",
+            schema: z.string(),
           },
         },
       },
       async ({ request }) => {
         return {
           code: 200,
-          dataType: "application/json",
-          json: request.params.id,
+          data: request.params.id,
         };
       },
     );

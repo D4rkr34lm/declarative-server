@@ -6,54 +6,15 @@ import { BearerAuthScheme } from "../../security/bearerAuth";
 import { HandlerForDefinition } from "./HandlerFromDefinition";
 
 describe("HandlerFromDefinition", () => {
-  it("can infer handler responses correctly (Empty)", () => {
-    type Handler = HandlerForDefinition<
-      "/test",
-      undefined,
-      undefined,
-      {
-        200: {};
-      }
-    >;
-
-    type Expected = (typedRequestData: {
-      request: Request<
-        {},
-        unknown,
-        undefined,
-        undefined,
-        Record<string, unknown>
-      >;
-      response: Response<unknown>;
-      parameters: {};
-      query: undefined;
-      body: undefined;
-      caller: unknown;
-    }) => Promise<
-      | {
-          code: 200;
-        }
-      | {
-          code: 500;
-        }
-    >;
-
-    expectTypeOf<Handler>().toEqualTypeOf<Expected>();
-  });
-
   it("can infer handler responses correctly (Json)", () => {
-    const _data = z.object({
-      a: z.number(),
-    });
-
     type Handler = HandlerForDefinition<
       "/test",
       undefined,
       undefined,
       {
         200: {
-          dataType: "application/json";
-          dataSchema: typeof _data;
+          type: "json";
+          schema: z.ZodString;
         };
       }
     >;
@@ -71,37 +32,25 @@ describe("HandlerFromDefinition", () => {
       query: undefined;
       body: undefined;
       caller: unknown;
-    }) => Promise<
-      | {
-          code: 200;
-          dataType: "application/json";
-          json: {
-            a: number;
-          };
-        }
-      | {
-          code: 500;
-        }
-    >;
+    }) => Promise<{
+      code: 200;
+      data: string;
+    }>;
 
     expectTypeOf<Handler>().toEqualTypeOf<Expected>();
   });
 
-  it("can infer handler responses correctly (Multiple)", () => {
-    const _data = z.object({
-      a: z.number(),
-    });
-
+  it("can infer handler responses correctly (headers)", () => {
     type Handler = HandlerForDefinition<
       "/test",
       undefined,
       undefined,
       {
         200: {
-          dataType: "application/json";
-          dataSchema: typeof _data;
+          type: "json";
+          schema: z.ZodString;
+          headers: ["X-Custom-Header"];
         };
-        400: {};
       }
     >;
 
@@ -118,19 +67,13 @@ describe("HandlerFromDefinition", () => {
       query: undefined;
       body: undefined;
       caller: unknown;
-    }) => Promise<
-      | {
-          code: 200;
-          dataType: "application/json";
-          json: {
-            a: number;
-          };
-        }
-      | { code: 400 }
-      | {
-          code: 500;
-        }
-    >;
+    }) => Promise<{
+      code: 200;
+      data: string;
+      headers: {
+        "X-Custom-Header": string;
+      };
+    }>;
 
     expectTypeOf<Handler>().toEqualTypeOf<Expected>();
   });
@@ -145,7 +88,10 @@ describe("HandlerFromDefinition", () => {
       undefined,
       undefined,
       {
-        200: {};
+        200: {
+          type: "json";
+          schema: z.ZodString;
+        };
       },
       [BasicAuthScheme<Caller>]
     >;
@@ -163,14 +109,10 @@ describe("HandlerFromDefinition", () => {
       query: undefined;
       body: undefined;
       caller: Caller;
-    }) => Promise<
-      | {
-          code: 200;
-        }
-      | {
-          code: 500;
-        }
-    >;
+    }) => Promise<{
+      code: 200;
+      data: string;
+    }>;
 
     expectTypeOf<Handler>().toEqualTypeOf<Expected>();
   });
@@ -185,7 +127,10 @@ describe("HandlerFromDefinition", () => {
       undefined,
       undefined,
       {
-        200: {};
+        200: {
+          type: "json";
+          schema: z.ZodString;
+        };
       },
       [BearerAuthScheme<Caller>]
     >;
@@ -203,14 +148,10 @@ describe("HandlerFromDefinition", () => {
       query: undefined;
       body: undefined;
       caller: Caller;
-    }) => Promise<
-      | {
-          code: 200;
-        }
-      | {
-          code: 500;
-        }
-    >;
+    }) => Promise<{
+      code: 200;
+      data: string;
+    }>;
 
     expectTypeOf<Handler>().toEqualTypeOf<Expected>();
   });

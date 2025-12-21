@@ -2,13 +2,13 @@ import { Request, Response } from "express";
 import expressAsyncHandler from "express-async-handler";
 import z from "zod";
 import { HttpMethod } from "../../constants/HttpMethods";
+import { HttpStatusCode } from "../../constants/HttpStatusCodes";
 import { SecurityScheme } from "../../security/SecuritySchema";
 import { Prettify } from "../../utils/types";
 import { ApiEndpointDefinition } from "./EndpointDefinition";
 import { ApiEndpointHandler } from "./EndpointHandler";
 import { HandlerForDefinition } from "./HandlerFromDefinition";
-import { GenericResponse, GenericResponseSchemaMap } from "./responses";
-import { isJsonResponse } from "./responses/jsonResponse";
+import { GenericResponseSchemaMap, HandlerResponse } from "./responses";
 
 export function createApiEndpointHandler<
   const ResponsesMap extends GenericResponseSchemaMap,
@@ -44,10 +44,10 @@ export function createApiEndpointHandler<
 
 export function buildApiEndpointHandler<
   Handler extends ApiEndpointHandler<
+    HandlerResponse<HttpStatusCode, unknown>,
     Record<string, string>,
     unknown,
     unknown,
-    GenericResponse,
     unknown
   >,
 >(handler: Handler) {
@@ -61,10 +61,6 @@ export function buildApiEndpointHandler<
       caller: response.locals.caller,
     });
 
-    if (isJsonResponse(result)) {
-      response.status(result.code).json(result.json);
-    } else {
-      response.status(result.code).send();
-    }
+    response.status(result.code).send(result.data);
   });
 }

@@ -4,12 +4,11 @@ import { SecurityScheme } from "../../security/SecuritySchema";
 import { Prettify } from "../../utils/types";
 import { ApiEndpointHandler } from "./EndpointHandler";
 import { ExtractPathParams } from "./PathParameters";
-import { EmptyResponse, EmptyResponseSchema } from "./responses/emptyResponse";
-import { GenericResponse, GenericResponseSchemaMap } from "./responses/index";
 import {
-  JsonResponseSchema,
-  JsonResponseSchemaToResponseType,
-} from "./responses/jsonResponse";
+  GenericResponseSchema,
+  GenericResponseSchemaMap,
+  InferResponseFromSchema,
+} from "./responses/index";
 
 export type HandlerForDefinition<
   Path extends string,
@@ -18,24 +17,23 @@ export type HandlerForDefinition<
   ResponsesMap extends GenericResponseSchemaMap,
   SecuritySchemas extends SecurityScheme<unknown>[] = [],
 > = ApiEndpointHandler<
-  ExtractPathParams<Path>,
-  RequestBody extends undefined ? undefined : z.infer<RequestBody>,
-  Query extends undefined ? undefined : z.infer<Query>,
   Exclude<
     Prettify<
       {
         [K in keyof ResponsesMap]: K extends HttpStatusCode
-          ? ResponsesMap[K] extends JsonResponseSchema
-            ? JsonResponseSchemaToResponseType<K, ResponsesMap[K]>
-            : ResponsesMap[K] extends EmptyResponseSchema
-              ? EmptyResponse<K>
-              : ResponsesMap[K] extends undefined
-                ? never
-                : GenericResponse
+          ? InferResponseFromSchema<
+              K,
+              ResponsesMap[K] extends GenericResponseSchema
+                ? ResponsesMap[K]
+                : never
+            >
           : never;
       }[keyof ResponsesMap]
     >,
     undefined
   >,
+  ExtractPathParams<Path>,
+  RequestBody extends undefined ? undefined : z.infer<RequestBody>,
+  Query extends undefined ? undefined : z.infer<Query>,
   SecuritySchemas extends SecurityScheme<infer Caller>[] ? Caller : unknown
 >;

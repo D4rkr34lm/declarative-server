@@ -1,4 +1,4 @@
-import { describe, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import { createServer } from "../../server";
 import { createApiEndpointHandler } from "./createApiHandler";
 
@@ -13,18 +13,18 @@ export const testEndpointBase = {
     group: "test",
   },
   method: HttpMethods.get,
-  requestBodySchema: z.object({
-    name: z.string(),
-  }),
   path: "/test",
   securitySchemes: [],
   responseSchemas: {
-    200: {},
+    200: {
+      type: "json" as const,
+      schema: z.string(),
+    },
   },
 };
 
 describe("createApiHandler", () => {
-  it("can create an API handler", () => {
+  it("can create an API handler", async () => {
     const endpoint = createApiEndpointHandler(
       {
         ...testEndpointBase,
@@ -32,6 +32,7 @@ describe("createApiHandler", () => {
       async () => {
         return {
           code: 200,
+          data: "test",
         };
       },
     );
@@ -44,6 +45,9 @@ describe("createApiHandler", () => {
 
     server.registerApiEndpoint(endpoint);
 
-    testRequest(server.expressApp).get("/test").expect(200);
+    const response = await testRequest(server.expressApp).get("/test");
+
+    expect(response.status).toBe(200);
+    expect(response.text).toBe("test");
   });
 });
