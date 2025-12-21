@@ -24,7 +24,7 @@ export const testEndpointBase = {
 };
 
 describe("createApiHandler", () => {
-  it("can create an API handler", async () => {
+  it("can create an API handler that responds correctly (json)", async () => {
     const endpoint = createApiEndpointHandler(
       {
         ...testEndpointBase,
@@ -49,5 +49,43 @@ describe("createApiHandler", () => {
 
     expect(response.status).toBe(200);
     expect(response.text).toBe("test");
+  });
+
+  it("can create an API handler that responds with custom headers", async () => {
+    const endpoint = createApiEndpointHandler(
+      {
+        ...testEndpointBase,
+        responseSchemas: {
+          200: {
+            type: "json" as const,
+            schema: z.string(),
+            headers: ["X-Custom-Header"],
+          },
+        },
+      },
+      async () => {
+        return {
+          code: 200,
+          data: "test",
+          headers: {
+            "X-Custom-Header": "CustomValue",
+          },
+        };
+      },
+    );
+
+    const server = createServer({
+      inDevMode: true,
+      port: 3000,
+      logger: false,
+    });
+
+    server.registerApiEndpoint(endpoint);
+
+    const response = await testRequest(server.expressApp).get("/test");
+
+    expect(response.status).toBe(200);
+    expect(response.text).toBe("test");
+    expect(response.headers["x-custom-header"]).toBe("CustomValue");
   });
 });
