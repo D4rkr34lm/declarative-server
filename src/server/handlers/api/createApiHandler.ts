@@ -44,7 +44,9 @@ export function createApiEndpointHandler<
 
 export function buildApiEndpointHandler<
   Handler extends ApiEndpointHandler<
-    HandlerResponse<HttpStatusCode, unknown>,
+    HandlerResponse<HttpStatusCode, unknown> & {
+      headers?: { [key: string]: string };
+    },
     Record<string, string>,
     unknown,
     unknown,
@@ -61,6 +63,9 @@ export function buildApiEndpointHandler<
       caller: response.locals.caller,
     });
 
-    response.status(result.code).send(result.data);
+    response
+      .status(result.code)
+      .set(result.headers ?? {})
+      .send(result.data);
   });
 }
