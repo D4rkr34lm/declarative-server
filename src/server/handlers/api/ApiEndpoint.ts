@@ -1,8 +1,8 @@
 import z from "zod";
-import { HttpMethod } from "../../constants/HttpMethods";
-import { ApiEndpointDefinition } from "./EndpointDefinition";
-import { HandlerForDefinition } from "./HandlerFromDefinition";
-import { GenericResponseSchemaMap } from "./responses";
+import { HttpMethod } from "../../constants/HttpMethods.js";
+import { ApiEndpointDefinition } from "./EndpointDefinition.js";
+import { HandlerForDefinition } from "./HandlerFromDefinition.js";
+import { GenericResponseSchemaMap } from "./responses/index.js";
 
 export interface ApiEndpoint<
   Path extends string = string,

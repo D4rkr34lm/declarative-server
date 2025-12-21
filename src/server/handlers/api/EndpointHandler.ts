@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { HttpStatusCode } from "../../constants/HttpStatusCodes";
-import { HandlerResponse } from "./responses";
+import { HttpStatusCode } from "../../constants/HttpStatusCodes.js";
+import { HandlerResponse } from "./responses/index.js";
 
 export type ApiEndpointHandler<
   Responses extends HandlerResponse<HttpStatusCode, unknown>,

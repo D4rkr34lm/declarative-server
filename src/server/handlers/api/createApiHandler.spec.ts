@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { createServer } from "../../server";
-import { createApiEndpointHandler } from "./createApiHandler";
+import { createServer } from "../../server.js";
+import { createApiEndpointHandler } from "./createApiHandler.js";
 
 import testRequest from "supertest";
 import z from "zod";
-import { HttpMethods } from "../../constants/HttpMethods";
+import { HttpMethods } from "../../constants/HttpMethods.js";
 
 export const testEndpointBase = {
   meta: {

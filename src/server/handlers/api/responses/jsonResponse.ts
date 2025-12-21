@@ -1,5 +1,5 @@
 import z from "zod";
-import { AbstractResponseSchema } from ".";
+import { AbstractResponseSchema } from "./index.js";
 
 export interface JsonResponseSchema<
   DataSchema extends z.ZodType = z.ZodType,

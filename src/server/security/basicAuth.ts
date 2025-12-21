@@ -1,5 +1,5 @@
 import { Request } from "express";
-import { hasNoValue } from "../utils/typeGuards";
+import { hasNoValue } from "../utils/typeGuards.js";
 
 export interface BasicAuthScheme<Caller = unknown> {
   name: string;

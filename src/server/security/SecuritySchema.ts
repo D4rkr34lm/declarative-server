@@ -1,6 +1,6 @@
 import { Request } from "express";
-import { BasicAuthScheme, buildBasicAuthenticator } from "./basicAuth";
-import { BearerAuthScheme, buildBearerAuthenticator } from "./bearerAuth";
+import { BasicAuthScheme, buildBasicAuthenticator } from "./basicAuth.js";
+import { BearerAuthScheme, buildBearerAuthenticator } from "./bearerAuth.js";
 
 export type SecurityScheme<Caller> =
   | BasicAuthScheme<Caller>

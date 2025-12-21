@@ -1,1 +1,1 @@
-export { generateOpenApiDoc } from "./generateOpenApi";
+export { generateOpenApiDoc } from "./generateOpenApi.js";

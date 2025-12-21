@@ -1,14 +1,14 @@
 import z from "zod";
-import { HttpStatusCode } from "../../constants/HttpStatusCodes";
-import { SecurityScheme } from "../../security/SecuritySchema";
-import { Prettify } from "../../utils/types";
-import { ApiEndpointHandler } from "./EndpointHandler";
-import { ExtractPathParams } from "./PathParameters";
+import { HttpStatusCode } from "../../constants/HttpStatusCodes.js";
+import { SecurityScheme } from "../../security/SecuritySchema.js";
+import { Prettify } from "../../utils/types.js";
+import { ApiEndpointHandler } from "./EndpointHandler.js";
+import { ExtractPathParams } from "./PathParameters.js";
 import {
   GenericResponseSchema,
   GenericResponseSchemaMap,
   InferResponseFromSchema,
-} from "./responses/index";
+} from "./responses/index.js";
 
 export type HandlerForDefinition<
   Path extends string,

@@ -1,8 +1,8 @@
 import { OpenAPIV3 } from "openapi-types";
 import { describe, expect, it } from "vitest";
 import z from "zod";
-import { createApiEndpointHandler } from "../server";
-import { __TEST_EXPORTS } from "./generateOpenApi";
+import { createApiEndpointHandler } from "../server/handlers/api/createApiHandler.js";
+import { __TEST_EXPORTS } from "./generateOpenApi.js";
 
 const { translateToOpenAPIPathItem } = __TEST_EXPORTS;
 

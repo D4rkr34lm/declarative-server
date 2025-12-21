@@ -1,18 +1,21 @@
 import cookieParser from "cookie-parser";
 import express, { Application } from "express";
-import { ApiEndpoint } from "./handlers/api/ApiEndpoint";
-import { buildApiEndpointHandler } from "./handlers/api/createApiHandler";
-import { ApiEndpointDefinition } from "./handlers/api/EndpointDefinition";
-import { HandlerForDefinition } from "./handlers/api/HandlerFromDefinition";
-import { buildAuthenticationMiddleware } from "./middleware/auth";
-import { buildRequestLogger, buildResponseLogger } from "./middleware/logging";
+import { ApiEndpoint } from "./handlers/api/ApiEndpoint.js";
+import { buildApiEndpointHandler } from "./handlers/api/createApiHandler.js";
+import { ApiEndpointDefinition } from "./handlers/api/EndpointDefinition.js";
+import { HandlerForDefinition } from "./handlers/api/HandlerFromDefinition.js";
+import { buildAuthenticationMiddleware } from "./middleware/auth.js";
+import {
+  buildRequestLogger,
+  buildResponseLogger,
+} from "./middleware/logging.js";
 import {
   buildBodyValidatorMiddleware,
   buildQueryValidatorMiddleware,
-} from "./middleware/validation";
-import { isEmpty } from "./utils/funcs";
-import { Logger, NoOpLogger } from "./utils/logging";
-import { hasNoValue, hasValue } from "./utils/typeGuards";
+} from "./middleware/validation.js";
+import { isEmpty } from "./utils/funcs.js";
+import { Logger, NoOpLogger } from "./utils/logging.js";
+import { hasNoValue, hasValue } from "./utils/typeGuards.js";
 
 export interface ServerConfig {
   inDevMode: boolean;

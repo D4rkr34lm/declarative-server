@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { ZodType } from "zod";
-import { HttpStatusCodes } from "../constants/HttpStatusCodes";
+import { HttpStatusCodes } from "../constants/HttpStatusCodes.js";
 
 export function buildBodyValidatorMiddleware<Schema extends ZodType>(
   schema: Schema,

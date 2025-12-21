@@ -1,14 +1,14 @@
 import z from "zod";
-import { HttpMethod } from "../server/constants/HttpMethods";
-import { ApiEndpointDefinition } from "../server/handlers/api/EndpointDefinition";
-import { GenericResponseSchemaMap } from "../server/handlers/api/responses";
-import { hasValue } from "../server/utils/typeGuards";
+import { HttpMethod } from "../server/constants/HttpMethods.js";
+import { ApiEndpointDefinition } from "../server/handlers/api/EndpointDefinition.js";
+import { GenericResponseSchemaMap } from "../server/handlers/api/responses/index.js";
+import { hasValue } from "../server/utils/typeGuards.js";
 
 import { ZodType } from "zod";
 
 import { OpenAPIV3 } from "openapi-types";
-import { Server } from "../server";
-import { isJsonResponseSchema } from "../server/handlers/api/responses/jsonResponse";
+import { isJsonResponseSchema } from "../server/handlers/api/responses/jsonResponse.js";
+import { Server } from "../server/server.js";
 
 function extractPathAndParameters(path: string): {
   openApiPath: string;

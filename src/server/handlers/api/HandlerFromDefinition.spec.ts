@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
 import { describe, expectTypeOf, it } from "vitest";
 import z from "zod";
-import { BasicAuthScheme } from "../../security/basicAuth";
-import { BearerAuthScheme } from "../../security/bearerAuth";
-import { HandlerForDefinition } from "./HandlerFromDefinition";
+import { BasicAuthScheme } from "../../security/basicAuth.js";
+import { BearerAuthScheme } from "../../security/bearerAuth.js";
+import { HandlerForDefinition } from "./HandlerFromDefinition.js";
 
 describe("HandlerFromDefinition", () => {
   it("can infer handler responses correctly (Json)", () => {

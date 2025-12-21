@@ -1,7 +1,7 @@
 import z from "zod";
-import { HttpMethod } from "../../constants/HttpMethods";
-import { SecurityScheme } from "../../security/SecuritySchema";
-import { GenericResponseSchemaMap } from "./responses/index";
+import { HttpMethod } from "../../constants/HttpMethods.js";
+import { SecurityScheme } from "../../security/SecuritySchema.js";
+import { GenericResponseSchemaMap } from "./responses/index.js";
 
 export interface ApiEndpointMeta {
   name: string;

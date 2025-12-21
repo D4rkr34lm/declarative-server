@@ -1,5 +1,5 @@
 import { describe, expectTypeOf, it } from "vitest";
-import { ExtractPathParams } from "./PathParameters";
+import { ExtractPathParams } from "./PathParameters.js";
 
 describe("ExtractPathParameters", () => {
   it("can infer the parameter types of a path", () => {

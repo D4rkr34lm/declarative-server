@@ -1,10 +1,10 @@
 import testRequest from "supertest";
 import { describe, expect, it } from "vitest";
-import { HttpStatusCodes } from "../constants/HttpStatusCodes";
-import { createApiEndpointHandler } from "../handlers/api/createApiHandler";
-import { testEndpointBase } from "../handlers/api/createApiHandler.spec";
-import { createServer } from "../server";
-import { createBasicAuthSchema } from "./basicAuth";
+import { HttpStatusCodes } from "../constants/HttpStatusCodes.js";
+import { createApiEndpointHandler } from "../handlers/api/createApiHandler.js";
+import { testEndpointBase } from "../handlers/api/createApiHandler.spec.js";
+import { createServer } from "../server.js";
+import { createBasicAuthSchema } from "./basicAuth.js";
 
 describe("basic auth schema", () => {
   const testUsername = "Test";

@@ -1,6 +1,6 @@
-import colors from "colors/safe";
+import colors from "colors/safe.js";
 import { NextFunction, Request, Response } from "express";
-import { Logger } from "../utils/logging";
+import { Logger } from "../utils/logging.js";
 
 export function buildRequestLogger(logger: Logger, isInDevMode: boolean) {
   return (req: Request, res: Response, next: NextFunction) => {

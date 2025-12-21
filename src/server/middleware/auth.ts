@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import expressAsyncHandler from "express-async-handler";
-import { HttpStatusCodes } from "../constants/HttpStatusCodes";
-import { authenticate, SecurityScheme } from "../security/SecuritySchema";
+import { HttpStatusCodes } from "../constants/HttpStatusCodes.js";
+import { authenticate, SecurityScheme } from "../security/SecuritySchema.js";
 
 export function buildAuthenticationMiddleware<Caller>(
   schemes: SecurityScheme<Caller>[],

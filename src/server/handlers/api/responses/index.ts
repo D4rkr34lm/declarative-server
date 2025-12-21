@@ -1,6 +1,6 @@
 import z from "zod";
-import { HttpStatusCode } from "../../../constants/HttpStatusCodes";
-import { JsonResponseSchema } from "./jsonResponse";
+import { HttpStatusCode } from "../../../constants/HttpStatusCodes.js";
+import { JsonResponseSchema } from "./jsonResponse.js";
 
 export type AbstractResponseSchema<
   Headers extends string[] | undefined = string[] | undefined,

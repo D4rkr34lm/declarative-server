@@ -1,14 +1,17 @@
 import { Request, Response } from "express";
 import expressAsyncHandler from "express-async-handler";
 import z from "zod";
-import { HttpMethod } from "../../constants/HttpMethods";
-import { HttpStatusCode } from "../../constants/HttpStatusCodes";
-import { SecurityScheme } from "../../security/SecuritySchema";
-import { Prettify } from "../../utils/types";
-import { ApiEndpointDefinition } from "./EndpointDefinition";
-import { ApiEndpointHandler } from "./EndpointHandler";
-import { HandlerForDefinition } from "./HandlerFromDefinition";
-import { GenericResponseSchemaMap, HandlerResponse } from "./responses";
+import { HttpMethod } from "../../constants/HttpMethods.js";
+import { HttpStatusCode } from "../../constants/HttpStatusCodes.js";
+import { SecurityScheme } from "../../security/SecuritySchema.js";
+import { Prettify } from "../../utils/types.js";
+import { ApiEndpointDefinition } from "./EndpointDefinition.js";
+import { ApiEndpointHandler } from "./EndpointHandler.js";
+import { HandlerForDefinition } from "./HandlerFromDefinition.js";
+import {
+  GenericResponseSchemaMap,
+  HandlerResponse,
+} from "./responses/index.js";
 
 export function createApiEndpointHandler<
   const ResponsesMap extends GenericResponseSchemaMap,
