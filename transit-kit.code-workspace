@@ -5,30 +5,12 @@
     },
   ],
   "settings": {
-    "editor.tokenColorCustomizations": {
-      "[*Dark*]": {
-        "textMateRules": [
-          {
-            "scope": "keyword.control",
-            "settings": {
-              "foreground": "#C586C0"
-            }
-          }
-        ]
-      }
-    },
     "editor.codeActionsOnSave": {
       "source.fixAll.eslint": "explicit",
     },
     "eslint.validate": [
       "javascript",
       "typescript",
-      "vue",
-      "vue-html"
-    ],
-    "cSpell.words": [
-      "neverthrow",
-      "VITE"
     ],
     "typescript.tsdk": "node_modules/typescript/lib",
   }

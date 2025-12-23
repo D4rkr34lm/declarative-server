@@ -1,15 +1,14 @@
 {
-  "compilerOptions": {
-    "strict": true,
-    "module": "nodenext",
-    "target": "ESNext",
-    "moduleResolution": "nodenext",
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "declaration": true,
-    "outDir": "./dist"
-  },
-  "include": [
-    "./src/**/*",
-  ],
+  "files": [],
+  "references": [
+    {
+      "path": "./tsconfig.build.json"
+    },
+    {
+      "path": "./tsconfig.dev.json"
+    },
+    {
+      "path": "./tsconfig.spec.json"
+    }
+  ]
 }
