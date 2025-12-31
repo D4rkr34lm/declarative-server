@@ -35,7 +35,10 @@ function extractPathAndParameters(path: string): {
 function extractQueryParameters(
   querySchema: ZodType,
 ): OpenAPIV3.ParameterObject[] {
-  const querySchemaObject = z.toJSONSchema(querySchema, { io: "input" });
+  const querySchemaObject = z.toJSONSchema(querySchema, {
+    io: "input",
+    target: "openapi-3.0",
+  });
 
   if (querySchemaObject.properties) {
     return Object.entries(querySchemaObject.properties).map(
@@ -109,6 +112,7 @@ function translateToOpenAPIPathItem(
             "application/json": {
               schema: z.toJSONSchema(requestBodySchema, {
                 io: "input",
+                target: "openapi-3.0",
               }) as OpenAPIV3.SchemaObject, // Type assertion
             },
           },
@@ -121,7 +125,10 @@ function translateToOpenAPIPathItem(
     .map(([statusCode, responseDef]) => {
       if (isJsonResponseSchema(responseDef)) {
         const zodSchema = responseDef.schema as ZodType;
-        const responseSchema = z.toJSONSchema(zodSchema, { io: "input" });
+        const responseSchema = z.toJSONSchema(zodSchema, {
+          io: "input",
+          target: "openapi-3.0",
+        });
 
         return {
           [statusCode]: {
