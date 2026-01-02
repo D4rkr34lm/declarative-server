@@ -4,28 +4,20 @@ import { HttpStatusCodes } from "../constants/HttpStatusCodes.js";
 import { createApiEndpointHandler } from "../handlers/api/createApiHandler.js";
 import { testEndpointBase } from "../handlers/api/createApiHandler.spec.js";
 import { createServer } from "../server.js";
-import { createBasicAuthSchema } from "./basicAuth.js";
+import { createBearerAuthSchema } from "./bearerAuth.js";
 
-describe("basic auth schema", () => {
-  const testUsername = "Test";
-  const testPassword = "TestPW";
+describe("bearer auth schema", () => {
+  const testToken = "TestToken123";
 
-  const encodedCredentials = Buffer.from(
-    `${testUsername}:${testPassword}`,
-  ).toString("base64");
-
-  const authScheme = createBasicAuthSchema(
-    "TestAuth",
-    async (name, password) => {
-      if (name === testUsername && password === testPassword) {
-        return {
-          username: name,
-        };
-      } else {
-        return null;
-      }
-    },
-  );
+  const authScheme = createBearerAuthSchema("TestAuth", async (token) => {
+    if (token === testToken) {
+      return {
+        username: "TestUser",
+      };
+    } else {
+      return null;
+    }
+  });
 
   const endpoint = createApiEndpointHandler(
     {
@@ -45,18 +37,18 @@ describe("basic auth schema", () => {
 
   server.registerApiEndpoint(endpoint);
 
-  it("accepts valid credentials", async () => {
+  it("accepts valid token", async () => {
     const response = await testRequest(server.expressApp)
       .get("/test")
-      .set("Authorization", `Basic ${encodedCredentials}`);
+      .set("Authorization", `Bearer ${testToken}`);
 
     expect(response.status).toBe(HttpStatusCodes.Ok_200);
   });
 
-  it("rejects invalid credentials", async () => {
+  it("rejects invalid token", async () => {
     const response = await testRequest(server.expressApp)
       .get("/test")
-      .set("Authorization", `Basic INVALID:INVALID`);
+      .set("Authorization", `Bearer INVALID_TOKEN`);
 
     expect(response.status).toBe(HttpStatusCodes.Unauthorized_401);
   });
@@ -70,7 +62,7 @@ describe("basic auth schema", () => {
   it("rejects malformed authorization header", async () => {
     const response = await testRequest(server.expressApp)
       .get("/test")
-      .set("Authorization", `Bearer sometoken`);
+      .set("Authorization", `Basic sometoken`);
 
     expect(response.status).toBe(HttpStatusCodes.Unauthorized_401);
   });
